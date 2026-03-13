@@ -8,23 +8,67 @@ import { stores } from '@/lib/data';
 
 function ExitIntentPopup() {
   const [visible, setVisible] = React.useState(false);
+
   React.useEffect(() => {
-    const seen = sessionStorage.getItem('flashopps-exit');
+    const hasSeenPopup = sessionStorage.getItem('flashopps-exit');
+
+    if (hasSeenPopup) return;
+
     const handler = (event: MouseEvent) => {
-      if (event.clientY <= 8 && !seen) setVisible(true);
+      if (event.clientY <= 8) {
+        setVisible(true);
+        sessionStorage.setItem('flashopps-exit', '1');
+      }
     };
+
     document.addEventListener('mouseout', handler);
+
     return () => document.removeEventListener('mouseout', handler);
   }, []);
+
+  function handleClose() {
+    setVisible(false);
+    sessionStorage.setItem('flashopps-exit', '1');
+  }
+
   if (!visible) return null;
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4">
       <div className="w-full max-w-xl rounded-[2rem] bg-white p-8 shadow-2xl">
-        <p className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-brand-orange">Antes de sair…</p>
-        <h3 className="text-3xl font-extrabold">Receba os melhores achados da semana</h3>
-        <p className="mt-3 text-slate-600">Entre para a lista do Flashopps e receba ofertas filtradas sem ruído.</p>
-        <form className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]"><input type="email" placeholder="Seu melhor e-mail" className="h-12 rounded-2xl border px-4 text-sm outline-none" /><button className="h-12 rounded-2xl bg-brand-orange px-5 text-sm font-bold text-white">Quero receber</button></form>
-        <button onClick={() => { sessionStorage.setItem('flashopps-exit', '1'); setVisible(false); }} className="mt-6 font-semibold text-brand-green">Fechar</button>
+        <p className="mb-2 text-sm font-bold uppercase tracking-[0.22em] text-brand-orange">
+          Antes de sair…
+        </p>
+        <h3 className="text-3xl font-extrabold">
+          Receba os melhores achados da semana
+        </h3>
+        <p className="mt-3 text-slate-600">
+          Entre para a lista do Flashopps e receba ofertas filtradas sem ruído.
+        </p>
+
+        <form
+  className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]"
+  onSubmit={(e) => e.preventDefault()}
+>
+  <input
+    type="email"
+    placeholder="Seu melhor e-mail"
+    className="h-12 rounded-2xl border px-4 text-sm outline-none"
+  />
+  <button
+    type="submit"
+    className="h-12 rounded-2xl bg-brand-orange px-5 text-sm font-bold text-white"
+  >
+    Quero receber
+  </button>
+</form>
+
+        <button
+          onClick={handleClose}
+          className="mt-6 font-semibold text-brand-green"
+        >
+          Fechar
+        </button>
       </div>
     </div>
   );
